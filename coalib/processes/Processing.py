@@ -29,6 +29,7 @@ from coalib.results.RESULT_SEVERITY import RESULT_SEVERITY
 from coalib.results.SourceRange import SourceRange
 from coalib.settings.Setting import glob_list, typed_list
 from coalib.parsing.Globbing import fnmatch
+from coalib.io.FileFactory import FileFactory
 
 
 ACTIONS = [DoNothingAction,
@@ -267,16 +268,17 @@ def get_file_dict(filename_list, log_printer=None, allow_raw_files=False):
     :return:                Reads the content of each file into a dictionary
                             with filenames as keys.
     """
-    file_dict = {}
+    file_set = {}
     for filename in filename_list:
         try:
-            with open(filename, 'r',
-                      encoding=detect_encoding(filename)) as _file:
-                file_dict[filename] = tuple(_file.readlines())
+            file_set[filename] = FileFactory(filename)
+            file_set[filename].string
         except UnicodeDecodeError:
             if allow_raw_files:
-                file_dict[filename] = None
+                file_set[filename] = None
                 continue
+            else:
+                del file_set[filename]
             logging.warning("Failed to read file '{}'. It seems to contain "
                             'non-unicode characters. Leaving it out.'
                             .format(filename))
@@ -287,8 +289,8 @@ def get_file_dict(filename_list, log_printer=None, allow_raw_files=False):
                           log_level=LOG_LEVEL.WARNING)
 
     logging.debug('Files that will be checked:\n' +
-                  '\n'.join(file_dict.keys()))
-    return file_dict
+                  '\n'.join(file_set.keys()))
+    return file_set
 
 
 def instantiate_bears(section,
@@ -497,6 +499,8 @@ def yield_ignore_ranges(file_dict):
         # Do not process raw files
         if file is None:
             continue
+
+        file = list(file.lines)
 
         for line_number, line in enumerate(file, start=1):
             # Before lowering all lines ever read, first look for the biggest
