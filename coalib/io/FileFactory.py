@@ -1,6 +1,7 @@
 import os
 
 from coala_utils.decorators import generate_eq
+from coalib.io.FileCache import get_content
 
 
 @generate_eq('name', 'timestamp')
@@ -96,8 +97,7 @@ class FileFactory:
         :return:
             The file contents as a byte sequence.
         """
-        with open(self._filename, 'rb') as fp:
-            return fp.read()
+        return get_content(self._filename)
 
     @property
     def string(self):
@@ -105,7 +105,7 @@ class FileFactory:
         :return:
             The file contents as a string UTF-8 decoded.
         """
-        return self.raw.decode()
+        return self.raw.decode(encoding='utf-8')
 
     @property
     def name(self):
