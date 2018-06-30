@@ -38,6 +38,7 @@ from coalib.results.result_actions.ResultAction import ResultAction
 from coalib.results.SourceRange import SourceRange
 from coalib.settings.Section import Section
 from coalib.settings.Setting import Setting
+from coalib.io.FileFactory import FileFactory
 
 from pygments.filters import VisibleWhitespaceFilter
 from pygments.lexers import TextLexer
@@ -156,6 +157,18 @@ class BSomeglobalBear(Bear):
 class ConsoleInteractionTest(unittest.TestCase):
 
     def setUp(self):
+        factory_test_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            'FileFactoryTestFiles'))
+        self.testfile1_path = os.path.join(factory_test_path, 'test1.txt')
+        self.testfile2_path = os.path.join(factory_test_path, 'test2.txt')
+        self.testfile3_path = os.path.join(factory_test_path, 'test3.txt')
+        self.testfile4_path = os.path.join(factory_test_path, 'test4.txt')
+        self.testfile5_path = os.path.join(factory_test_path, 'test5.txt')
+        self.testfile6_path = os.path.join(factory_test_path, 'test6.txt')
+        self.testfile7_path = os.path.join(factory_test_path, 'test7.txt')
+        self.testfile8_path = os.path.join(factory_test_path, 'test8.txt')
+
         self.log_printer = ListLogPrinter()
         self.console_printer = ConsolePrinter(print_colored=False)
         self.no_color = not self.console_printer.print_colored
@@ -290,8 +303,8 @@ class ConsoleInteractionTest(unittest.TestCase):
 
         with make_temp() as testfile_path:
             file_dict = {
-                testfile_path: ['1\n', '2\n', '3\n'],
-                'f_b': ['1', '2', '3']
+                testfile_path: FileFactory(self.testfile1_path),
+                'f_b': FileFactory(self.testfile2_path)
             }
             diff = Diff(file_dict[testfile_path])
             diff.delete_line(2)
@@ -667,7 +680,7 @@ Project wide:
                                     'Trailing whitespace found',
                                     file='filename',
                                     line=2)],
-                {abspath('filename'): ['test line\n', 'line 2\n', 'line 3\n']},
+                {abspath('filename'): FileFactory(self.testfile1_path)},
                 {},
                 self.console_printer)
             self.assertEqual("""
@@ -689,11 +702,7 @@ filename
                                     'Trailing whitespace found',
                                     file='filename',
                                     line=5)],
-                {abspath('filename'): ['test line\n',
-                                       'line 2\n',
-                                       'line 3\n',
-                                       'line 4\n',
-                                       'line 5\n']},
+                {abspath('filename'): FileFactory(self.testfile8_path)},
                 {},
                 self.console_printer)
             self.assertEqual("""
@@ -719,11 +728,7 @@ filename
                                               'Trailing whitespace found',
                                               file='file',
                                               line=2)],
-                          {abspath('file'): ['test line\n',
-                                             '\t\n',
-                                             'line 3\n',
-                                             'line 4\n',
-                                             'line 5\t\n']},
+                          {abspath('file'): FileFactory(self.testfile4_path)},
                           {},
                           self.console_printer)
 
@@ -757,10 +762,8 @@ file
                 [Result('Bear_for_detecting_clone',
                         'Clone Found',
                         affected_code)],
-                {abspath('some_file'): ['line ' + str(i + 1) + '\n'
-                                        for i in range(10)],
-                 abspath('another_file'): ['line ' + str(i + 1)
-                                           for i in range(10)]},
+                {abspath('some_file'): FileFactory(self.testfile5_path),
+                 abspath('another_file'): FileFactory(self.testfile6_path)},
                 {},
                 self.console_printer)
             self.assertEqual("""
@@ -823,7 +826,7 @@ some_file
                 Section(''),
                 [Result.from_values('t', 'msg', file='file', line=5),
                  Result.from_values('t', 'msg', file='file', line=6)],
-                {abspath('file'): ['line ' + str(i + 1) for i in range(5)]},
+                {abspath('file'): FileFactory(self.testfile7_path)},
                 {},
                 self.console_printer)
             self.assertEqual(

@@ -34,6 +34,7 @@ from coalib.results.RESULT_SEVERITY import (
     RESULT_SEVERITY, RESULT_SEVERITY_COLORS)
 from coalib.settings.Setting import Setting
 from coala_utils.string_processing.Core import join_names
+from coalib.io.FileFactory import FileFactory
 
 from pygments import highlight
 from pygments.formatters import (TerminalTrueColorFormatter,
@@ -221,7 +222,7 @@ def print_lines(console_printer,
                               color=FILE_LINES_COLOR,
                               end='')
 
-        line = file_dict[sourcerange.file][i - 1].rstrip('\n')
+        line = file_dict[sourcerange.file].lines[i - 1].rstrip('\n')
         try:
             lexer = get_lexer_for_filename(sourcerange.file)
         except ClassNotFound:
@@ -529,7 +530,7 @@ def print_affected_lines(console_printer, file_dict, sourcerange):
                           color=FILE_NAME_COLOR)
 
     if sourcerange.start.line is not None:
-        if len(file_dict[sourcerange.file]) < sourcerange.end.line:
+        if len(file_dict[sourcerange.file].lines) < sourcerange.end.line:
             console_printer.print(format_lines(lines=STR_LINE_DOESNT_EXIST,
                                                line_nr=sourcerange.end.line,
                                                symbol='!'))
