@@ -1,4 +1,5 @@
 import unittest
+import os
 from os.path import join
 
 from coala_utils.ContextManagers import retrieve_stdout
@@ -6,13 +7,21 @@ from coalib.results.Diff import Diff
 from coalib.results.Result import Result
 from coalib.results.result_actions.ShowPatchAction import ShowPatchAction
 from coalib.settings.Section import Section, Setting
+from coalib.io.FileFactory import FileFactory
 
 
 class ShowPatchActionTest(unittest.TestCase):
 
     def setUp(self):
         self.uut = ShowPatchAction()
-        self.file_dict = {'a': ['a\n', 'b\n', 'c\n'], 'b': ['old_first\n']}
+        factory_test_path = os.path.abspath(os.path.join(
+            os.path.dirname(__file__),
+            'FileFactoryTestFiles'))
+        self.testfile1_path = os.path.join(factory_test_path, 'test1.txt')
+        self.testfile2_path = os.path.join(factory_test_path, 'test2.txt')
+        self.empty_testfile_path = os.path.join(factory_test_path, 'empty.txt')
+        self.file_dict = {'a': FileFactory(self.testfile1_path),
+                          'b': FileFactory(self.testfile2_path)}
         self.diff_dict = {'a': Diff(self.file_dict['a']),
                           'b': Diff(self.file_dict['b'])}
         self.diff_dict['a'].add_lines(1, ['test\n'])
@@ -66,7 +75,7 @@ class ShowPatchActionTest(unittest.TestCase):
         with retrieve_stdout() as stdout:
             test_result = Result('origin', 'message',
                                  diffs={'a': Diff([], rename='b')})
-            file_dict = {'a': []}
+            file_dict = {'a': FileFactory(self.empty_testfile_path)}
             self.assertEqual(self.uut.apply_from_section(test_result,
                                                          file_dict,
                                                          {},
@@ -80,7 +89,7 @@ class ShowPatchActionTest(unittest.TestCase):
         with retrieve_stdout() as stdout:
             test_result = Result('origin', 'message',
                                  diffs={'a': Diff([])})
-            file_dict = {'a': []}
+            file_dict = {'a': FileFactory(self.empty_testfile_path)}
             self.assertEqual(self.uut.apply_from_section(test_result,
                                                          file_dict,
                                                          {},
