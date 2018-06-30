@@ -680,7 +680,7 @@ Project wide:
                                     'Trailing whitespace found',
                                     file='filename',
                                     line=2)],
-                {abspath('filename'): FileFactory(self.testfile1_path)},
+                {abspath('filename'): FileFactory(self.testfile8_path)},
                 {},
                 self.console_printer)
             self.assertEqual("""
